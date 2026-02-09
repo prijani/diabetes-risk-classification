@@ -8,6 +8,8 @@ Author: Priya Jani
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import kagglehub
+import os
 
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.preprocessing import StandardScaler
@@ -16,16 +18,23 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score, classification_report, RocCurveDisplay
 
-
 RANDOM_STATE = 42
 
-
+def load_data():
+    # automatically download dataset
+    path = kagglehub.dataset_download("uciml/pima-indians-diabetes-database")
+    
+    csv_path = os.path.join(path, "diabetes.csv")
+    df = pd.read_csv(csv_path)
+    X = df.drop("Outcome", axis=1)
+    y = df["Outcome"]
+    return X, y
+    
 def load_data(path="../data/diabetes.csv"):
     df = pd.read_csv(path)
     X = df.drop("Outcome", axis=1)
     y = df["Outcome"]
     return X, y
-
 
 def build_models():
     logistic = Pipeline([
@@ -44,7 +53,6 @@ def build_models():
         "Random Forest": forest
     }
 
-
 def evaluate_model(name, model, X_train, X_test, y_train, y_test):
     model.fit(X_train, y_train)
 
@@ -62,7 +70,6 @@ def evaluate_model(name, model, X_train, X_test, y_train, y_test):
 
     cv = cross_val_score(model, X_train, y_train, cv=5, scoring="roc_auc")
     print("Cross-val AUC:", round(cv.mean(), 3))
-
 
 def main():
     X, y = load_data()
