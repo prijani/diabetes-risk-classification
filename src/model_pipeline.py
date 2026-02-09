@@ -29,12 +29,6 @@ def load_data():
     X = df.drop("Outcome", axis=1)
     y = df["Outcome"]
     return X, y
-    
-def load_data(path="../data/diabetes.csv"):
-    df = pd.read_csv(path)
-    X = df.drop("Outcome", axis=1)
-    y = df["Outcome"]
-    return X, y
 
 def build_models():
     logistic = Pipeline([
@@ -65,7 +59,13 @@ def evaluate_model(name, model, X_train, X_test, y_train, y_test):
 
     RocCurveDisplay.from_estimator(model, X_test, y_test)
     plt.title(name)
-    plt.savefig(f"../results/{name}_roc_curve.png")
+
+    # Determine results folder path relative to this script
+    script_dir = os.path.dirname(os.path.abspath(__file__))  
+    results_dir = os.path.join(script_dir, "..", "results")  
+    os.makedirs(results_dir, exist_ok=True)
+
+    plt.savefig(os.path.join(results_dir, f"{name}_roc_curve.png"))
     plt.close()
 
     cv = cross_val_score(model, X_train, y_train, cv=5, scoring="roc_auc")
